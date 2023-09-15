@@ -23,10 +23,10 @@ To run this script, you need:
 
 To run this script, follow these steps:
 
-1. Download the script file or copy its contents to a new file.
+1. Download the script file or copy its contents to a new file. **(Replace the Discord webhook URL with your own!)**
 2. Make the file executable with `chmod +x script.sh`
 3. Run the file with `sudo ./script.sh`
-4. Follow the prompts to enter the hostname, time zone, username, public key, and Discord webhook URL.
+4. Follow the prompts to enter the hostname, time zone, username, and public key.
 5. Wait for the script to finish and reboot the system.
 
 ## Disclaimer
