@@ -3,9 +3,25 @@ import shutil
 import requests
 import pytz
 import socket
-from hurry.filesize import size
-from hurry.filesize import alternative
 
+"""
+GLOBAL VARIABLES
+"""
+SYSNAME = socket.gethostname().upper()
+TIMEZONE = "America/Toronto"
+PATHS = ["/mnt/BACKUP", "/mnt/BACKUP2"]
+THRESHOLD_IN_BYTES = 2147483648  # 2 GB (https://convertlive.com/u/convert/gigabytes/to/bytes)
+DISCORD_WEBHOOK_URL = "<your_Discord_webhook_URL>"
+
+"""
+This function takes an integer, `nbytes`, representing a count of bytes,
+and converts it into a string that represents the byte count in a human readable format.
+The output string is formatted to two decimal places and uses appropriate units,
+(B, KB, MB, GB, TB, PB) based on the size of the byte count.
+
+@param nbytes (int): The number of bytes to be converted.
+@return str: A string representing the byte count in a human readable format.
+"""
 def humansize(nbytes):
     suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
     i = 0
@@ -15,79 +31,69 @@ def humansize(nbytes):
     f = ('%.2f' % nbytes).rstrip('0').rstrip('.')
     return '%s %s' % (f, suffixes[i])
 
-sysName = socket.gethostname().upper()
+"""
+This function takes a string message, formats it into an embed object and
+sends it to a Discord channel via webhook.
 
-total, used, free = shutil.disk_usage("/")
-nc_total, nc_used, nc_free = shutil.disk_usage("/home/nic/NetworkPath1")
-b1_total, b1_used, b1_free = shutil.disk_usage("/home/nic/NetworkPath2")
-b2_total, b2_used, b2_free = shutil.disk_usage("/home/nic/NetworkPath3")
-
-global_notify_threshold_in_bytes = 2147483648  # 2 GB
-
-
+@param msg (str): The message to be sent to the Discord channel.
+"""
 def Discord(msg):
 
     # Get the current system time in UTC
     now_utc = datetime.datetime.utcnow()
 
     # Convert to America/Toronto time zone
-    tz = pytz.timezone('America/Toronto')
-    now_toronto = now_utc.replace(tzinfo=pytz.utc).astimezone(tz)
+    tz = pytz.timezone(TIMEZONE)
+    tz_converted = now_utc.replace(tzinfo=pytz.utc).astimezone(tz)
 
     # Format the datetime object in ISO 8601 format
-    now = now_toronto.isoformat()
+    now = tz_converted.isoformat()
 
     data = {
         # "content": msg,
         # "username": "custom username"
+        "embeds": [
+            {
+                "title": f"💿 {SYSNAME} Storage Monitoring",
+                "description": msg,
+                "color": 15036416,
+                "timestamp": now
+            }
+        ]
     }
-    data["embeds"] = [
-        {
-            "title": "💾 {} Storage Monitoring".format(sysName),
-            "description": msg,
-            "color": 15036416,
-            "timestamp": now
-        }
 
-    ]
-
-    print("\n[+] Sending Discord message\n---\n{}\n---\n".format(msg))
-    result = requests.post(
-        "<Discord_Webhook_URL>", json=data)
+    print(f"\n[+] Sending Discord message\n\n---\n{msg}\n---\n")
+    result = requests.post(DISCORD_WEBHOOK_URL, json=data)
     try:
         result.raise_for_status()
     except requests.exceptions.HTTPError as err:
         print(err)
     else:
-        print("[+] Payload delivered successfully, code {}.".format(result.status_code))
+        print(f"[+] Payload delivered successfully, code {result.status_code}.")
     print("[+] Sent!\n")
 
-
 if __name__ == '__main__':
-    now = datetime.datetime.now().strftime('%Y-%m-%d %I:%M%p')
+    # Create a dictionary to store disk usage
+    disk_usage = {}
 
-    lowDiskSpace = []
-    # Check Root filesystem
-    if (free < global_notify_threshold_in_bytes):
-        lowDiskSpace.append("/")
+    # Create an array to store disks below set threshold
+    low_disk_space = []
 
-    # Check NetworkPath1
-    if (nc_free < global_notify_threshold_in_bytes):
-        lowDiskSpace.append("NetworkPath1")
+    # Get current disk usage for each path and check if it's below the threshold
+    for path in PATHS:
+        total, used, free = shutil.disk_usage(path)
+        disk_usage[path] = {"name": path.split("/")[-1], "total": total, "used": used, "free": free}
+        
+        if free < THRESHOLD_IN_BYTES:
+            low_disk_space.append(disk_usage[path])
 
-    # Check NetworkPath2
-    if (b1_free < global_notify_threshold_in_bytes):
-        lowDiskSpace.append("NetworkPath2")
-
-    # Check NetworkPath3
-    if (b2_free < global_notify_threshold_in_bytes):
-        lowDiskSpace.append("NetworkPath3")
-
-    if len(lowDiskSpace) > 0:
-        str = ""
-        for disk in lowDiskSpace:
-            str = "**{} - {}**\n".format(str, disk)
-        Discord(
-            "⚠️ The following drives have less than 2GB disk space remaining!\n{}".format(str))
+    # Send Discord notification based on length of low disks array
+    output_str = ""
+    if len(low_disk_space) > 0:
+        for disk in low_disk_space:
+            output_str += f"\n- **{disk['name']}:** Used {humansize(disk['used'])} ({round((disk['free'] / disk['total']) * 100)}% of {humansize(disk['total'])}) - {humansize(disk['free'])} left"
+        Discord(f"⚠️ The following shares have less than {humansize(THRESHOLD_IN_BYTES)} of disk space left:{output_str}")
     else:
-        Discord(f"✅ All drives have sufficient disk space.\n*- **NetworkPath1**\n(Used {humansize(nc_used)} of {humansize((nc_free + nc_used))} - **{humansize(nc_free)}** remaining)*\n*- **NetworkPath2**\n(Used {humansize(b1_used)} of {humansize((b1_free + b1_used))} - **{humansize(b1_free)}** remaining)*\n*- **NetworkPath3**\n(Used {humansize(b2_used)} of {humansize((b2_free + b2_used))} - **{humansize(b2_free)}** remaining)*")
+        for disk in disk_usage.values():
+            output_str += f"\n- **{disk['name']}:** Used {humansize(disk['used'])} ({round((disk['free'] / disk['total']) * 100)}% of {humansize(disk['total'])}) - {humansize(disk['free'])} left"
+        Discord(f"### ✅ All shares have sufficient disk space.\nThreshold: {humansize(THRESHOLD_IN_BYTES)}{output_str}")

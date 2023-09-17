@@ -1,77 +1,53 @@
 <h1 align="center">💾<br/><code>storage-monitoring.py</code></h1>
 
 ## Description
-This script monitors the available disk space on different mapped network paths on an Ubuntu 22.04 system, and sends a notification to Discord when the available space falls below a specified threshold.
 
-## Prerequisites
-- Ubuntu 22.04
-- Python 3.8.10
-- pip 20.0.2
-- [`requests`](https://pypi.org/project/requests/)
-- [`pytz`](https://pypi.org/project/pytz/)
-- [`hurry.filesize`](https://pypi.org/project/hurry.filesize/)
+This Python script monitors the disk usage of specified paths and sends a notification to a Discord channel via webhook if the free space falls below a certain threshold. This script has only been tested on Ubuntu 22.04 LTS, but should work on most Unix-based operating systems.
 
-## Installation
-1. Download `storage-monitoring.py` to `/usr/local/bin`
+## Dependencies
 
-2. Install the required libraries:
-    ```
-    pip install requests pytz hurry.filesize
-    ```
+Python3, if not already installed:
 
-3. Configure the script:
+```bash
+apt update -y && apt install python3 -y
+```
 
-- Set the `global_notify_threshold_in_bytes` variable to the desired threshold in bytes *(default is 2 GB)*.
-- Replace `<Discord_Webhook_URL>` with the actual Discord webhook URL.
+Install the required Python libraries:
 
-4. Run the script
-    ```bash
-    sudo python3 storage-monitoring.py
-    ```
+```bash
+pip install -r requirements.txt
+```
+
+## Execution
+
+When run, the script checks each path in `PATHS` for its disk usage. If the free space is below `THRESHOLD_IN_BYTES`, it sends a notification to Discord with details of the disk usage.
 
 ## Usage
-The script checks the available disk space on the following network drives, including the local root filesystem:
+1. Create a new Python file and paste `storage-monitoring.py`
 
-- NetworkPath1
-- NetworkPath2
-- NetworkPath3
-
-When the available space on any of these drives falls below the threshold, a Discord notification is sent with the details of the affected drives.
-
-## Example Discord Notification
-If any of the drives have less than 2GB disk space remaining, a notification similar to the following will be sent:
-
-```
-⚠️ The following drives have less than 2GB disk space remaining!
-
-- **NetworkPath1**
-- **NetworkPath2**
-- **NetworkPath3**
+2. Replace the Global Variables with your own and run the script using:
+```bash
+sudo python3 storage-monitoring.py
 ```
 
-If all drives have sufficient disk space, the notification will indicate that all drives are fine:
-
-```
-✅ All drives have sufficient disk space.
-
-- **NetworkPath1**
-  (Used <used_space> of <total_space> - **<remaining_space>** remaining)
-- **NetworkPath2**
-  (Used <used_space> of <total_space> - **<remaining_space>** remaining)
-- **NetworkPath3**
-  (Used <used_space> of <total_space> - **<remaining_space>** remaining)
+3. Run the script
+```bash
+sudo python3 storage-monitoring.py
 ```
 
-## Schedule Notifications (Crontab)
-1. Enter the crontab:
-    ```
-    sudo crontab -e
-    ```
+## Scheduled Execution
 
-2. Add the following line:
-    ```
-    0 6 * * * sudo python3 /usr/local/bin/storage-monitoring.py >/dev/null 2>&1
-    ```
+You can also schedule the script to run at regular intervals using cron:
+
+```bash
+sudo crontab -e
+```
+
+Add the following line:
+
+```
+0 6 * * * sudo python3 /path/to/storage-monitoring.py >/dev/null 2>&1
+```
 
 This will execute the script each morning at 6:00 AM (system time).
 
