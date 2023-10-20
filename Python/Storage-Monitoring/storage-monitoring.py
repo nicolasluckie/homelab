@@ -10,7 +10,7 @@ GLOBAL VARIABLES
 SYSNAME = socket.gethostname().upper()
 TIMEZONE = "America/Toronto"
 PATHS = ["/mnt/BACKUP", "/mnt/BACKUP2"]
-THRESHOLD_IN_BYTES = 2147483648  # 2 GB (https://convertlive.com/u/convert/gigabytes/to/bytes)
+THRESHOLD_PERCENTAGE = 25
 DISCORD_WEBHOOK_URL = "<your_Discord_webhook_URL>"
 
 """
@@ -82,18 +82,19 @@ if __name__ == '__main__':
     # Get current disk usage for each path and check if it's below the threshold
     for path in PATHS:
         total, used, free = shutil.disk_usage(path)
-        disk_usage[path] = {"name": path.split("/")[-1], "total": total, "used": used, "free": free}
+        disk_usage[path] = {"name": path.split("/")[-1], "total": total, "used": used, "free": free, "THRESHOLD_IN_BYTES" : round}
+        free_percent = round(free / total * 100)
         
-        if free < THRESHOLD_IN_BYTES:
+        if free_percent < THRESHOLD_PERCENTAGE:
             low_disk_space.append(disk_usage[path])
-
+    
     # Send Discord notification based on length of low disks array
     output_str = ""
     if len(low_disk_space) > 0:
         for disk in low_disk_space:
-            output_str += f"\n- **{disk['name']}:** Used {humansize(disk['used'])} ({round((disk['free'] / disk['total']) * 100)}% of {humansize(disk['total'])}) - {humansize(disk['free'])} left"
-        Discord(f"⚠️ The following shares have less than {humansize(THRESHOLD_IN_BYTES)} of disk space left:{output_str}")
+            output_str += f"\n- **{disk['name']}:** Used {humansize(disk['used'])} of {humansize(disk['total'])} - {humansize(disk['free'])} free (~{round((disk['free'] / disk['total']) * 100)}%)"
+        Discord(f"### ⚠️ Low Disk Space Warning\nThreshold: {THRESHOLD_PERCENTAGE}%{output_str}")
     else:
         for disk in disk_usage.values():
-            output_str += f"\n- **{disk['name']}:** Used {humansize(disk['used'])} ({round((disk['free'] / disk['total']) * 100)}% of {humansize(disk['total'])}) - {humansize(disk['free'])} left"
-        Discord(f"### ✅ All shares have sufficient disk space.\nThreshold: {humansize(THRESHOLD_IN_BYTES)}{output_str}")
+            output_str += f"\n- **{disk['name']}:** Used {humansize(disk['used'])} of {humansize(disk['total'])} - {humansize(disk['free'])} free (~{round((disk['free'] / disk['total']) * 100)}%)"
+        Discord(f"### ✅ All shares have sufficient disk space\nThreshold: {THRESHOLD_PERCENTAGE}%{output_str}")
