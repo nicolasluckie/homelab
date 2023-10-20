@@ -82,7 +82,7 @@ if __name__ == '__main__':
     # Get current disk usage for each path and check if it's below the threshold
     for path in PATHS:
         total, used, free = shutil.disk_usage(path)
-        disk_usage[path] = {"name": path.split("/")[-1], "total": total, "used": used, "free": free, "THRESHOLD_IN_BYTES" : round}
+        disk_usage[path] = {"name": path.split("/")[-1], "total": total, "used": used, "free": free}
         free_percent = round(free / total * 100)
         
         if free_percent < THRESHOLD_PERCENTAGE:
