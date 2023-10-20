@@ -1,6 +1,6 @@
 <h1 align="center"><code>startup.sh</code></h1>
 
-This script sends a Discord push notification when executed.
+This script sends a Discord push notification when executed. It can be easily scheduled to run at system boot.
 
 ## Usage
 
