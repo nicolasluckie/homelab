@@ -4,14 +4,13 @@
 A simple Python script that encrypts a file with a randomly generated passphrase using 7-Zip and shreds the original file using BleachBit.
 
 ## Requirements
-- Python 3.8 or higher
-- 7-Zip installed and added to PATH
-- BleachBit installed and added to PATH
+- [Python](https://www.python.org/) 3.8 or higher
+- [7-Zip](https://7-zip.org/) installed and added to PATH
+- [BleachBit](https://www.bleachbit.org/) installed and added to PATH
 - A `words.txt` file containing a list of words, one per line, in the same directory as the script
 
 ## Usage
-
-- Run the script with `python auto-encrypt.py` or simply run `auto-encrypt.bat`
+- Run `auto-encrypt.bat` to start the script, or use `python auto-encrypt.py`
 
 - A GUI window will appear, asking you to select a file to encrypt
 
