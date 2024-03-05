@@ -1,4 +1,4 @@
-# notify.py
+# `notify.py`
 
 This script sends a Discord notification to the specified channel.
 The notification includes the current system time in the specified time zone.

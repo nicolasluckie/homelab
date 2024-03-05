@@ -1,4 +1,4 @@
-<h1 align="center">💿<br/><code>ubuntu_secure_installation.sh</code></h1>
+# `ubuntu_secure_installation.sh`
 
 ## Description
 This is a bash script that performs the following tasks to configure a fresh Ubuntu 22.04 LTS installation.
