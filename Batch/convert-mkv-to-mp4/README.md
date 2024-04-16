@@ -12,14 +12,14 @@ The script will:
 
 ## Dependencies
 
-This script requires [ffmpeg](https://ffmpeg.org/) to be installed and added to PATH.
+Requires [ffmpeg](https://ffmpeg.org/) to be installed and added to PATH.
 
 ## Usage
 
 > I recommend downloading this script so you can copy it when needed.
 
-1. **Copy** this script to the folder containing the subfolders.
+1. **Copy** to the folder containing the subfolders.
 
-2. Double-click to run.
+2. Double click to run.
 
 ![Animation.gif](./Animation.gif)
