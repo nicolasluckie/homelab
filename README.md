@@ -2,7 +2,7 @@
 
 Useful collections, scripts, and code snippets for home-labbers.
 
-Check out my collection of Compose files to hit the ground running.
+Check out my collection of [Compose files](./docker) to hit the ground running.
 
 ## [Nicipedia 📖](https://wiki.nicolasluckie.com/)
 
