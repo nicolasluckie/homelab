@@ -2,7 +2,7 @@
 
 Useful collections, scripts, and code snippets for home-labbers.
 
-Check out my collection of Compose files to hit the ground running, or check out the lists, subreddits, and my personal wiki below.
+Check out my collection of Compose files to hit the ground running.
 
 ## [Nicipedia 📖](https://wiki.nicolasluckie.com/)
 
