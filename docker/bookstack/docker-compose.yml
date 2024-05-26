@@ -1,0 +1,36 @@
+version: "2"
+services:
+  bookstack:
+    image: ghcr.io/linuxserver/bookstack:latest # tag a specific version to prevent breaking changes
+    container_name: bookstack-site
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - APP_URL=${APP_URL}
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_DATABASE=${DB_DATABASE}
+      - APP_ENV=${APP_ENV}
+      - APP_DEFAULT_DARK_MODE=${APP_DEFAULT_DARK_MODE}
+    volumes:
+      - ./data/config:/config
+    ports:
+      - 6875:80 # to change the port, change only the first number (e.g. 8080:80)
+    restart: unless-stopped
+    depends_on:
+      - bookstack_db
+  bookstack_db:
+    image: lscr.io/linuxserver/mariadb
+    container_name: bookstack-db
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - TZ=${TZ}
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASS}
+    volumes:
+      - ./data/db:/config
+    restart: unless-stopped
